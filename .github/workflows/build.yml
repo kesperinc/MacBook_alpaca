@@ -69,6 +69,18 @@ jobs:
           path: |
             chat
 
+      - name: Build ARM
+        id: make_build_arm
+        run: |
+          make clean && arch -arm64 make
+
+      - name: Archive production artifacts (arm)
+        uses: actions/upload-artifact@v3
+        with:
+          name: macos-arm
+          path: |
+            chat
+
   # macos-arm64:
   #   runs-on: macos-arm64
 
