@@ -44,7 +44,7 @@ jobs:
   #           chat
 
 
-  macOS-latest:
+  macos_build:
     runs-on: macOS-latest
 
     steps:
@@ -62,12 +62,29 @@ jobs:
         run: |
           make chat_mac
 
+      - name: Codesign executable
+        env: 
+          MACOS_CERTIFICATE: ${{ secrets.APPLE_DEVELOPER_CERTIFICATE_P12_BASE64 }}
+          MACOS_CERTIFICATE_PWD: ${{ secrets.APPLE_DEVELOPER_CERTIFICATE_PASSWORD }}
+          KEYCHAIN_PWD: ${{ secrets.KEYCHAIN_PASSWORD }}
+          MACOS_CERT_ID: ${{ secrets.APPLE_DEVELOPER_CERTIFICATE_ID }}
+
+        run: |
+          echo $MACOS_CERTIFICATE | base64 —decode > certificate.p12
+          security create-keychain -p $KEYCHAIN_PWD build.keychain
+          security default-keychain -s build.keychain
+          security unlock-keychain -p $KEYCHAIN_PWD build.keychain
+          security import certificate.p12 -k build.keychain -P $MACOS_CERTIFICATE_PWD -T /usr/bin/codesign
+          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k $KEYCHAIN_PWD build.keychain
+          /usr/bin/codesign --force -s $MACOS_CERT_ID ./chat_mac -v
+
       - name: Archive production artifacts
         uses: actions/upload-artifact@v3
         with:
           name: macos
           path: |
             chat_mac
+
 
 
   # macos-arm64:
