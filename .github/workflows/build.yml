@@ -17,31 +17,31 @@ env:
  BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
 
 jobs:
-  ubuntu-latest:
-    runs-on: ubuntu-latest
+  # ubuntu-latest:
+  #   runs-on: ubuntu-latest
 
-    steps:
-      - name: Clone
-        id: checkout
-        uses: actions/checkout@v1
+  #   steps:
+  #     - name: Clone
+  #       id: checkout
+  #       uses: actions/checkout@v1
 
-      - name: Dependencies
-        id: depends
-        run: |
-          sudo apt-get update
-          sudo apt-get install build-essential
+  #     - name: Dependencies
+  #       id: depends
+  #       run: |
+  #         sudo apt-get update
+  #         sudo apt-get install build-essential
 
-      - name: Build
-        id: make_build
-        run: |
-          make
+  #     - name: Build
+  #       id: make_build
+  #       run: |
+  #         make
 
-      - name: Archive production artifacts
-        uses: actions/upload-artifact@v3
-        with:
-          name: ubuntu
-          path: |
-            chat
+  #     - name: Archive production artifacts
+  #       uses: actions/upload-artifact@v3
+  #       with:
+  #         name: ubuntu
+  #         path: |
+  #           chat
 
 
   macOS-latest:
@@ -67,7 +67,7 @@ jobs:
         with:
           name: macos
           path: |
-            chat
+            chat_mac
 
 
   # macos-arm64:
@@ -95,53 +95,53 @@ jobs:
   #         path: |
   #           chat
 
-  windows-latest:
-    runs-on: windows-latest
+  # windows-latest:
+  #   runs-on: windows-latest
 
-    steps:
-      - name: Clone
-        id: checkout
-        uses: actions/checkout@v1
+  #   steps:
+  #     - name: Clone
+  #       id: checkout
+  #       uses: actions/checkout@v1
 
-      - name: Build
-        id: cmake_build
-        run: |
-          mkdir build
-          cd build
-          cmake ..
-          cmake --build . --config Release
+  #     - name: Build
+  #       id: cmake_build
+  #       run: |
+  #         mkdir build
+  #         cd build
+  #         cmake ..
+  #         cmake --build . --config Release
 
-      - name: Set commit hash variables
-        id: commit
-        if: ${{ ( github.event_name == 'push' && github.ref == 'refs/heads/master' ) || github.event.inputs.create_release == 'true' }}
-        uses: pr-mpt/actions-commit-hash@v2
+  #     - name: Set commit hash variables
+  #       id: commit
+  #       if: ${{ ( github.event_name == 'push' && github.ref == 'refs/heads/master' ) || github.event.inputs.create_release == 'true' }}
+  #       uses: pr-mpt/actions-commit-hash@v2
 
-      - name: Pack artifacts
-        id: pack_artifacts
-        if: ${{ ( github.event_name == 'push' && github.ref == 'refs/heads/master' ) || github.event.inputs.create_release == 'true' }}
-        run: |
-          7z a alpaca-${{ env.BRANCH_NAME }}-${{ steps.commit.outputs.short }}-bin-win-x64.zip .\build\Release\*
+  #     - name: Pack artifacts
+  #       id: pack_artifacts
+  #       if: ${{ ( github.event_name == 'push' && github.ref == 'refs/heads/master' ) || github.event.inputs.create_release == 'true' }}
+  #       run: |
+  #         7z a alpaca-${{ env.BRANCH_NAME }}-${{ steps.commit.outputs.short }}-bin-win-x64.zip .\build\Release\*
 
-      - name: Create release
-        id: create_release
-        if: ${{ ( github.event_name == 'push' && github.ref == 'refs/heads/master' ) || github.event.inputs.create_release == 'true' }}
-        uses: zendesk/action-create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ env.BRANCH_NAME }}-${{ steps.commit.outputs.short }}
+  #     - name: Create release
+  #       id: create_release
+  #       if: ${{ ( github.event_name == 'push' && github.ref == 'refs/heads/master' ) || github.event.inputs.create_release == 'true' }}
+  #       uses: zendesk/action-create-release@v1
+  #       env:
+  #         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  #       with:
+  #         tag_name: ${{ env.BRANCH_NAME }}-${{ steps.commit.outputs.short }}
 
-      - name: Upload release
-        id: upload_release
-        if: ${{ ( github.event_name == 'push' && github.ref == 'refs/heads/master' ) || github.event.inputs.create_release == 'true' }}
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }} 
-          asset_path: .\alpaca-${{ env.BRANCH_NAME }}-${{ steps.commit.outputs.short }}-bin-win-x64.zip
-          asset_name: alpaca-${{ env.BRANCH_NAME }}-${{ steps.commit.outputs.short }}-bin-win-x64.zip
-          asset_content_type: application/octet-stream
+  #     - name: Upload release
+  #       id: upload_release
+  #       if: ${{ ( github.event_name == 'push' && github.ref == 'refs/heads/master' ) || github.event.inputs.create_release == 'true' }}
+  #       uses: actions/upload-release-asset@v1
+  #       env:
+  #         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  #       with:
+  #         upload_url: ${{ steps.create_release.outputs.upload_url }} 
+  #         asset_path: .\alpaca-${{ env.BRANCH_NAME }}-${{ steps.commit.outputs.short }}-bin-win-x64.zip
+  #         asset_name: alpaca-${{ env.BRANCH_NAME }}-${{ steps.commit.outputs.short }}-bin-win-x64.zip
+  #         asset_content_type: application/octet-stream
 
 #  ubuntu-latest-gcc:
 #    runs-on: ubuntu-latest
