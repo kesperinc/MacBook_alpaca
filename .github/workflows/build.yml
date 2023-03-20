@@ -17,31 +17,34 @@ env:
  BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
 
 jobs:
-  # ubuntu-latest:
-  #   runs-on: ubuntu-latest
+  ubuntu-latest:
+    runs-on: ubuntu-latest
 
-  #   steps:
-  #     - name: Clone
-  #       id: checkout
-  #       uses: actions/checkout@v1
+    steps:
+      - name: Clone
+        id: checkout
+        uses: actions/checkout@v1
 
-  #     - name: Dependencies
-  #       id: depends
-  #       run: |
-  #         sudo apt-get update
-  #         sudo apt-get install build-essential
+      - name: Dependencies
+        id: depends
+        run: |
+          sudo apt-get update
+          sudo apt-get install build-essential
 
-  #     - name: Build
-  #       id: make_build
-  #       run: |
-  #         make
+      - name: Build
+        id: make_build
+        run: |
+          make
 
-  #     - name: Archive production artifacts
-  #       uses: actions/upload-artifact@v3
-  #       with:
-  #         name: ubuntu
-  #         path: |
-  #           chat
+      - name: Zip executables
+        run: zip alpaca-linux.zip chat
+
+      - name: Archive production artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: linux
+          path: |
+            alpaca-linux.zip
 
 
   macos-latest:
@@ -134,6 +137,7 @@ jobs:
     needs: 
       - windows-latest
       - macos-latest
+      - ubuntu-latest
 
     steps:
       - name: Download all workflow run artifacts
@@ -173,4 +177,15 @@ jobs:
           upload_url: ${{ steps.create_release.outputs.upload_url }} 
           asset_path: macos/alpaca-mac.zip
           asset_name: alpaca-mac.zip
+          asset_content_type: application/octet-stream
+
+      - name: Upload linux release
+        # if: ${{ ( github.event_name == 'push' && github.ref == 'refs/heads/master' ) || github.event.inputs.create_release == 'true' }}
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }} 
+          asset_path: linux/alpaca-linux.zip
+          asset_name: alpaca-linux.zip
           asset_content_type: application/octet-stream
