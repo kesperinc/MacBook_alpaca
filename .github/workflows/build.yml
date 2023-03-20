@@ -131,7 +131,7 @@ jobs:
 
 
   release:
-    depends-on: 
+    needs: 
       - windows-latest
       - macos_build
 
