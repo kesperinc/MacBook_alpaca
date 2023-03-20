@@ -44,7 +44,7 @@ jobs:
   #           chat
 
 
-  macos_build:
+  macos-latest:
     runs-on: macOS-latest
 
     steps:
@@ -85,10 +85,9 @@ jobs:
       - name: Notarize executables
         # if: ${{ ( github.event_name == 'push' && github.ref == 'refs/heads/master' ) || github.event.inputs.create_release == 'true' }}
         env: 
-          PROD_MACOS_NOTARIZATION_PWD: ${{ secrets.AC_PASSWORD }}
           PROD_MACOS_NOTARIZATION_APPLE_ID: ${{ secrets.AC_USERNAME }}
-          PROD_MACOS_NOTARIZATION_TEAM_ID: ${{ secrets.KEYCHAIN_PASSWORD }}
-          MACOS_CERT_ID: ${{ secrets.APPLE_DEVELOPER_CERTIFICATE_ID }}
+          PROD_MACOS_NOTARIZATION_PWD: ${{ secrets.AC_PASSWORD }}
+          PROD_MACOS_NOTARIZATION_TEAM_ID: ${{ secrets.PROD_MACOS_NOTARIZATION_TEAM_ID }}
         run: |
           xcrun notarytool store-credentials "notarytool-profile" --apple-id "$PROD_MACOS_NOTARIZATION_APPLE_ID" --team-id "$PROD_MACOS_NOTARIZATION_TEAM_ID" --password "$PROD_MACOS_NOTARIZATION_PWD"
           xcrun notarytool submit "alpaca-mac.zip" --keychain-profile "notarytool-profile" --wait
@@ -134,7 +133,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: 
       - windows-latest
-      - macos_build
+      - macos-latest
 
     steps:
       - name: Download all workflow run artifacts
