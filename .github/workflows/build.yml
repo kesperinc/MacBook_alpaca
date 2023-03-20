@@ -76,6 +76,7 @@ jobs:
           security unlock-keychain -p $KEYCHAIN_PWD build.keychain
           security import certificate.p12 -k build.keychain -P $MACOS_CERTIFICATE_PWD -T /usr/bin/codesign
           security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k $KEYCHAIN_PWD build.keychain
+          chmod +x ./chat_mac
           /usr/bin/codesign --force -s $MACOS_CERT_ID ./chat_mac -v
 
       - name: Archive production artifacts
