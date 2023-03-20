@@ -130,37 +130,37 @@ jobs:
             alpaca-${{ env.BRANCH_NAME }}-${{ steps.commit.outputs.short }}-bin-win-x64.zip
 
 
-    release:
-      depends_on: 
-        - windows-latest
-        - macos_build
+  release:
+    depends_on: 
+      - windows-latest
+      - macos_build
 
-      steps:
-        - name: Set commit hash variables
-          id: commit
-          if: ${{ ( github.event_name == 'push' && github.ref == 'refs/heads/master' ) || github.event.inputs.create_release == 'true' }}
-          uses: pr-mpt/actions-commit-hash@v2
+    steps:
+      - name: Set commit hash variables
+        id: commit
+        if: ${{ ( github.event_name == 'push' && github.ref == 'refs/heads/master' ) || github.event.inputs.create_release == 'true' }}
+        uses: pr-mpt/actions-commit-hash@v2
 
-        - name: Create release
-          id: create_release
-          if: ${{ ( github.event_name == 'push' && github.ref == 'refs/heads/master' ) || github.event.inputs.create_release == 'true' }}
-          uses: zendesk/action-create-release@v1
-          env:
-            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          with:
-            tag_name: ${{ env.BRANCH_NAME }}-${{ steps.commit.outputs.short }}
+      - name: Create release
+        id: create_release
+        if: ${{ ( github.event_name == 'push' && github.ref == 'refs/heads/master' ) || github.event.inputs.create_release == 'true' }}
+        uses: zendesk/action-create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ env.BRANCH_NAME }}-${{ steps.commit.outputs.short }}
 
-        - name: Upload release
-          id: upload_release
-          if: ${{ ( github.event_name == 'push' && github.ref == 'refs/heads/master' ) || github.event.inputs.create_release == 'true' }}
-          uses: actions/upload-release-asset@v1
-          env:
-            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          with:
-            upload_url: ${{ steps.create_release.outputs.upload_url }} 
-            asset_path: .\alpaca-${{ env.BRANCH_NAME }}-${{ steps.commit.outputs.short }}-bin-win-x64.zip
-            asset_name: alpaca-${{ env.BRANCH_NAME }}-${{ steps.commit.outputs.short }}-bin-win-x64.zip
-            asset_content_type: application/octet-stream
+      - name: Upload release
+        id: upload_release
+        if: ${{ ( github.event_name == 'push' && github.ref == 'refs/heads/master' ) || github.event.inputs.create_release == 'true' }}
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }} 
+          asset_path: .\alpaca-${{ env.BRANCH_NAME }}-${{ steps.commit.outputs.short }}-bin-win-x64.zip
+          asset_name: alpaca-${{ env.BRANCH_NAME }}-${{ steps.commit.outputs.short }}-bin-win-x64.zip
+          asset_content_type: application/octet-stream
 
 #  ubuntu-latest-gcc:
 #    runs-on: ubuntu-latest
